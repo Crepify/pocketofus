@@ -1,0 +1,16 @@
+{
+  "name": "Pocket of Us — a little corner of love",
+  "short_name": "Pocket of Us",
+  "description": "A small, customizable corner of love notes, memories, journaling, and tiny joys.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8f4ee",
+  "theme_color": "#f8f4ee",
+  "icons": [
+    { "src": "./assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./assets/heart.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

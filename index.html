@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f4ee">
+  <meta name="description" content="A small, customizable corner of comfort, love notes, memories, and little joys.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/heart.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
+  <title>Pocket of Us — a little corner of love</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8f4ee;
+      --surface: rgba(255, 253, 251, .91);
+      --surface-solid: #fffdfb;
+      --surface-alt: #f5eee8;
+      --ink: #493c3a;
+      --muted: #887a76;
+      --accent: #c97670;
+      --accent-strong: #96534e;
+      --accent-soft: #f7e5e2;
+      --line: rgba(82, 60, 56, .11);
+      --shadow: 0 18px 50px rgba(87, 65, 57, .08);
+      --hero-bg: linear-gradient(135deg, #f8e9e4 0%, #f5ebe6 52%, #efeee7 100%);
+      --wallpaper-overlay: rgba(248, 244, 238, .83);
+      --photo: none;
+      --radius-xl: 30px;
+      --radius-lg: 23px;
+      --radius-md: 16px;
+      --ease: cubic-bezier(.2, .75, .25, 1);
+    }
+    body[data-theme="blossom"] {
+      --bg: #fbf1f1; --surface: rgba(255, 252, 252, .92); --surface-solid: #fffcfc;
+      --surface-alt: #f8e9e9; --ink: #513e43; --muted: #8e777d; --accent: #c76e7b;
+      --accent-strong: #914b59; --accent-soft: #f8e0e4; --line: rgba(93, 57, 66, .12);
+      --hero-bg: linear-gradient(135deg, #f9e2e5, #f8ecee 55%, #f1e9ed); --wallpaper-overlay: rgba(250, 240, 241, .82);
+    }
+    body[data-theme="lavender"] {
+      --bg: #f5f2fa; --surface: rgba(253, 252, 255, .92); --surface-solid: #fdfcff;
+      --surface-alt: #eeeaf6; --ink: #474151; --muted: #817a8d; --accent: #8776aa;
+      --accent-strong: #62527f; --accent-soft: #e9e3f4; --line: rgba(70, 61, 91, .12);
+      --hero-bg: linear-gradient(135deg, #e9e3f2, #f0eaf5 54%, #f1eee9); --wallpaper-overlay: rgba(245, 242, 250, .83);
+    }
+    body[data-theme="sage"] {
+      --bg: #f1f4ef; --surface: rgba(252, 254, 251, .92); --surface-solid: #fcfefb;
+      --surface-alt: #e8eee6; --ink: #3f4940; --muted: #768078; --accent: #758d77;
+      --accent-strong: #4c6750; --accent-soft: #e1ebe1; --line: rgba(56, 74, 58, .12);
+      --hero-bg: linear-gradient(135deg, #e5eee3, #edf1e9 56%, #f2ede6); --wallpaper-overlay: rgba(241, 244, 239, .84);
+    }
+    body[data-theme="night"] {
+      color-scheme: dark;
+      --bg: #24232a; --surface: rgba(45, 42, 51, .95); --surface-solid: #2d2a33;
+      --surface-alt: #37333e; --ink: #f6edf1; --muted: #c0b4bf; --accent: #efa0aa;
+      --accent-strong: #ffd2d6; --accent-soft: #49333d; --line: rgba(255, 239, 247, .12);
+      --shadow: 0 20px 60px rgba(0, 0, 0, .22); --hero-bg: linear-gradient(135deg, #3c303b, #37313f 56%, #343638);
+      --wallpaper-overlay: rgba(31, 29, 36, .79);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--ink); background-color: var(--bg);
+      background-image: linear-gradient(var(--wallpaper-overlay), var(--wallpaper-overlay)), var(--photo);
+      background-size: cover, cover; background-position: center, center; background-attachment: fixed, fixed;
+      font-family: ui-rounded, "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased; transition: background-color .25s ease, color .25s ease;
+    }
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 3px;
+    }
+    .app-shell { width: min(1050px, calc(100% - 48px)); margin: 0 auto; padding: 20px 0 64px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 2px 25px; }
+    .brand { color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 11px; min-width: 0; }
+    .brand-mark { width: 43px; height: 43px; display: grid; place-items: center; border-radius: 15px; color: var(--accent-strong); background: var(--accent-soft); }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .brand-copy { display: grid; gap: 1px; }
+    .brand-name { font-size: 15px; font-weight: 760; letter-spacing: -.035em; }
+    .brand-caption { color: var(--muted); font-size: 11px; letter-spacing: .015em; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .date-chip { padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 12px; background: var(--surface); }
+    .icon-button { width: 42px; height: 42px; padding: 0; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); color: var(--ink); cursor: pointer; transition: transform .2s var(--ease), background .2s ease; }
+    .icon-button:hover { transform: translateY(-2px); background: var(--surface-solid); }
+    .icon-button svg { width: 18px; height: 18px; }
+
+    .welcome-card { min-height: 332px; position: relative; overflow: hidden; display: grid; grid-template-columns: 1.2fr .8fr; align-items: center; gap: 18px; padding: 43px 48px; border: 1px solid rgba(255,255,255,.56); border-radius: var(--radius-xl); background: var(--hero-bg); box-shadow: var(--shadow); }
+    .welcome-copy { position: relative; z-index: 1; max-width: 560px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 19px; color: var(--accent-strong); font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent); }
+    h1 { margin: 0; font-size: clamp(38px, 5.3vw, 61px); line-height: 1.05; letter-spacing: -.065em; font-weight: 690; }
+    .title-heart { display: inline-block; margin-left: 8px; color: var(--accent); font-size: .55em; vertical-align: 14px; transform: rotate(-12deg); }
+    .welcome-text { max-width: 435px; margin: 16px 0 23px; color: var(--muted); font-size: 15px; line-height: 1.75; }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .button { min-height: 46px; display: inline-flex; justify-content: center; align-items: center; gap: 9px; padding: 0 17px; border: 1px solid transparent; border-radius: 15px; font-size: 13px; font-weight: 690; cursor: pointer; text-decoration: none; transition: transform .18s var(--ease), box-shadow .2s ease, background .2s ease; }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary { color: #fffaf8; background: var(--accent-strong); box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-strong) 22%, transparent); }
+    body[data-theme="night"] .button-primary { color: #30232b; }
+    .button-primary:hover { box-shadow: 0 11px 24px color-mix(in srgb, var(--accent-strong) 29%, transparent); }
+    .button-soft { color: var(--accent-strong); background: color-mix(in srgb, var(--surface-solid) 68%, transparent); border-color: color-mix(in srgb, var(--accent) 20%, transparent); }
+    .button-plain { color: var(--muted); background: transparent; border-color: var(--line); }
+    .button-small { min-height: 37px; padding: 0 12px; border-radius: 12px; font-size: 12px; }
+    .button svg { width: 16px; height: 16px; flex: 0 0 auto; }
+    .no-pressure { margin: 14px 0 0; color: var(--muted); font-size: 11px; }
+
+    .hero-art { position: relative; min-height: 250px; display: grid; place-items: center; }
+    .hero-orbit { position: absolute; width: 250px; height: 250px; border: 1px solid color-mix(in srgb, var(--accent) 17%, transparent); border-radius: 50%; transform: rotate(-18deg); }
+    .hero-orbit::before, .hero-orbit::after { content: ""; position: absolute; border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent); border-radius: 50%; inset: 18px; }
+    .hero-orbit::after { inset: 39px; }
+    .hero-note-card { position: relative; width: min(252px, 90%); min-height: 208px; padding: 23px 23px 20px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,.72); border-radius: 21px; background: color-mix(in srgb, var(--surface-solid) 87%, transparent); box-shadow: 0 18px 48px rgba(96, 69, 62, .12); transform: rotate(3deg); }
+    .hero-note-label { color: var(--muted); font-size: 8px; letter-spacing: .15em; font-weight: 800; }
+    .hero-note-heart { align-self: center; color: var(--accent); font-size: 43px; line-height: .9; filter: drop-shadow(0 8px 12px color-mix(in srgb, var(--accent) 20%, transparent)); animation: floaty 4s ease-in-out infinite; }
+    .hero-note-copy { max-width: 190px; margin: 8px auto 0; text-align: center; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 16px; line-height: 1.45; }
+    .floating-heart { position: absolute; z-index: 2; color: var(--accent); opacity: .78; animation: floaty 4s ease-in-out infinite; }
+    .floating-heart.one { top: 27px; right: 24px; font-size: 20px; animation-delay: -.8s; }
+    .floating-heart.two { bottom: 26px; left: 23px; font-size: 15px; animation-delay: -1.8s; }
+    .floating-heart.three { top: 61px; left: 22px; color: #c4ad9c; font-size: 11px; animation-delay: -2.5s; }
+    @keyframes floaty { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-7px) rotate(-5deg); } }
+
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 39px 2px 16px; }
+    .section-heading h2 { margin: 0; font-size: 19px; font-weight: 720; letter-spacing: -.035em; }
+    .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .text-button { padding: 8px 10px; border: 0; background: transparent; color: var(--accent-strong); font-size: 12px; font-weight: 700; cursor: pointer; border-radius: 10px; }
+    .text-button:hover { background: var(--accent-soft); }
+    .text-button svg { width: 14px; height: 14px; vertical-align: -3px; margin-right: 4px; }
+    .edit-banner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin: 0 0 13px; padding: 12px 15px; border: 1px dashed color-mix(in srgb, var(--accent) 42%, transparent); border-radius: 15px; background: color-mix(in srgb, var(--accent-soft) 64%, var(--surface-solid)); color: var(--muted); font-size: 12px; }
+    .edit-banner[hidden] { display: none; }
+    .hidden-widgets { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .hidden-widgets:empty { display: none; }
+    .restore-widget { padding: 6px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--accent-strong); background: var(--surface-solid); cursor: pointer; font-size: 11px; }
+
+    .widget-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; align-items: stretch; }
+    .widget { position: relative; min-width: 0; padding: 22px 23px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); box-shadow: 0 8px 24px rgba(74, 56, 51, .035); transition: transform .2s var(--ease), box-shadow .2s ease, border-color .2s ease, background .2s ease; backdrop-filter: blur(11px); }
+    .widget:hover { box-shadow: 0 13px 30px rgba(74, 56, 51, .07); }
+    .widget[data-size="wide"] { grid-column: 1 / -1; }
+    .widget-grid.editing .widget { border-style: dashed; border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); cursor: grab; }
+    .widget-grid.editing .widget:active { cursor: grabbing; }
+    .widget.dragging { opacity: .45; transform: scale(.985); }
+    .widget.drag-over { outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
+    .widget[hidden] { display: none !important; }
+    .widget-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .widget-kicker { margin: 0 0 7px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .widget h3 { margin: 0; font-size: 16px; letter-spacing: -.025em; }
+    .widget-icon { width: 35px; height: 35px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 13px; background: var(--accent-soft); color: var(--accent-strong); font-size: 16px; }
+    .widget-controls { display: none; flex-wrap: wrap; justify-content: flex-end; gap: 4px; margin: 13px 0 0; padding-top: 10px; border-top: 1px solid var(--line); }
+    .widget-grid.editing .widget-controls { display: flex; }
+    .widget-control { min-width: 30px; min-height: 28px; padding: 4px 7px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-solid); color: var(--muted); cursor: pointer; font-size: 10px; }
+    .widget-control:hover { color: var(--accent-strong); border-color: var(--accent); }
+    .note-display { min-height: 73px; display: flex; align-items: center; margin: 14px 0 11px; padding: 15px 17px; border-radius: 16px; background: var(--surface-alt); color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 17px; line-height: 1.55; }
+    .widget-bottom { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .widget-caption { color: var(--muted); font-size: 11px; }
+    .quote-display { margin: 20px 0 16px; padding-left: 14px; border-left: 2px solid var(--accent); color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 19px; line-height: 1.48; }
+    .quote-source { color: var(--muted); font-size: 11px; }
+    .memory-preview { margin: 16px 0 14px; min-height: 85px; overflow: hidden; border-radius: 16px; background: var(--surface-alt); }
+    .memory-preview img { display: block; width: 100%; max-height: 220px; object-fit: cover; }
+    .memory-empty { min-height: 85px; display: flex; align-items: center; gap: 13px; padding: 16px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .memory-empty span { font-size: 25px; }
+    .memory-text { padding: 14px 16px; }
+    .memory-text strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .memory-text p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .journal-stat { display: flex; align-items: center; gap: 10px; margin: 17px 0 16px; padding: 14px 15px; border-radius: 15px; background: var(--surface-alt); }
+    .journal-stat-num { color: var(--accent-strong); font-size: 25px; line-height: 1; font-weight: 760; letter-spacing: -.05em; }
+    .journal-stat-copy { color: var(--muted); font-size: 11px; line-height: 1.4; }
+    .joy-message { min-height: 69px; display: flex; align-items: center; margin: 13px 0 12px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .widget-action { border: 0; background: transparent; color: var(--accent-strong); padding: 7px 0; cursor: pointer; font-size: 12px; font-weight: 720; }
+    .widget-action:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .page-footnote { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 26px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
+    .page-footnote span { color: var(--accent); }
+    .mobile-nav { display: none; }
+
+    dialog.sheet { width: min(510px, calc(100vw - 30px)); max-height: min(87vh, 820px); padding: 0; border: 1px solid var(--line); border-radius: 26px; color: var(--ink); background: var(--surface-solid); box-shadow: 0 28px 90px rgba(44, 31, 34, .23); overflow: auto; }
+    dialog.sheet::backdrop { background: rgba(49, 38, 42, .39); backdrop-filter: blur(5px); }
+    .dialog-body { padding: 25px; }
+    .dialog-header { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 19px; }
+    .dialog-header h2 { margin: 0; font-size: 21px; letter-spacing: -.04em; }
+    .dialog-header p { margin: 6px 0 0; max-width: 370px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .dialog-close { flex: 0 0 auto; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; }
+    .dialog-close:hover { color: var(--accent-strong); }
+    .field { display: grid; gap: 7px; margin: 15px 0; }
+    .field label { color: var(--ink); font-size: 12px; font-weight: 700; }
+    .field-hint { color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .input, .textarea { width: 100%; padding: 12px 13px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); color: var(--ink); font-size: 13px; }
+    .textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+    .input::placeholder, .textarea::placeholder { color: color-mix(in srgb, var(--muted) 66%, transparent); }
+    .dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .dialog-actions .button { min-height: 42px; }
+    .helper-card { margin: 13px 0 0; padding: 12px 13px; border-radius: 13px; color: var(--muted); background: var(--surface-alt); font-size: 11px; line-height: 1.6; }
+    .inline-error { display: none; margin: 10px 0 0; color: #a94e56; font-size: 12px; line-height: 1.5; }
+    .inline-error.visible { display: block; }
+
+    .theme-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .theme-choice { min-width: 0; padding: 7px 5px 8px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); color: var(--muted); cursor: pointer; font-size: 10px; }
+    .theme-choice[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-strong); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 14%, transparent); }
+    .theme-swatch { height: 29px; display: block; margin-bottom: 6px; border-radius: 8px; border: 1px solid rgba(0,0,0,.04); }
+    .swatch-soft { background: linear-gradient(135deg, #f8e9e4, #f8f4ee); }
+    .swatch-blossom { background: linear-gradient(135deg, #f7dfe3, #fbf1f1); }
+    .swatch-lavender { background: linear-gradient(135deg, #e5dff1, #f5f2fa); }
+    .swatch-sage { background: linear-gradient(135deg, #dfeadf, #f1f4ef); }
+    .swatch-night { background: linear-gradient(135deg, #3c303b, #24232a); }
+    .upload-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .upload-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .upload-label { display: inline-flex; align-items: center; min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 11px; color: var(--accent-strong); background: var(--surface); font-size: 11px; font-weight: 700; cursor: pointer; }
+    .upload-label:hover { border-color: var(--accent); }
+    .privacy-note { margin: 17px 0 0; padding: 12px 13px; border-radius: 13px; background: var(--surface-alt); color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+    .mood-row { display: flex; gap: 8px; margin: 8px 0 12px; }
+    .mood-button { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); font-size: 19px; cursor: pointer; }
+    .mood-button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 12%, transparent); }
+    .entry-list, .memory-list { display: grid; gap: 10px; margin-top: 17px; }
+    .entry-card, .memory-card { padding: 14px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
+    .entry-card-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; color: var(--muted); font-size: 10px; }
+    .entry-card p { margin: 0; color: var(--ink); font-size: 12px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .delete-button { border: 0; padding: 5px 7px; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; font-size: 10px; }
+    .delete-button:hover { color: #ac5259; background: var(--accent-soft); }
+    .empty-state { padding: 22px 15px; border: 1px dashed var(--line); border-radius: 15px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.6; }
+    .memory-card img { display: block; width: 100%; max-height: 230px; object-fit: cover; margin-bottom: 10px; border-radius: 11px; }
+    .memory-card h4 { margin: 0 0 5px; font-size: 13px; }
+    .memory-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .memory-card .entry-card-top { margin-bottom: 8px; }
+    .comfort-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .comfort-choice { min-height: 66px; display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; transition: transform .16s ease, border-color .16s ease; }
+    .comfort-choice:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+    .comfort-choice span:first-child { font-size: 20px; }
+    .comfort-choice strong { display: block; font-size: 12px; }
+    .comfort-choice small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .comfort-result { display: none; margin-top: 13px; padding: 17px; border-radius: 17px; background: var(--accent-soft); }
+    .comfort-result.visible { display: block; }
+    .comfort-result p { margin: 0; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 17px; line-height: 1.55; }
+    .breath-guide { display: flex; align-items: center; gap: 14px; margin-top: 13px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .breath-orb { width: 48px; height: 48px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--accent) 35%, var(--surface-solid)); animation: breathe 7s ease-in-out infinite; }
+    .breath-orb::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-strong); opacity: .8; }
+    @keyframes breathe { 0%,100% { transform: scale(.82); } 45% { transform: scale(1.13); } }
+    .comfort-result-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
+    .comfort-result-actions button { border: 0; padding: 6px 0; background: transparent; color: var(--accent-strong); font-size: 11px; font-weight: 700; cursor: pointer; }
+    .photo-preview { display: none; width: 100%; max-height: 170px; margin-top: 8px; border-radius: 12px; object-fit: cover; }
+    .photo-preview.visible { display: block; }
+    .toast { position: fixed; z-index: 30; left: 50%; bottom: 25px; max-width: min(90vw, 420px); padding: 12px 16px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); background: var(--surface-solid); box-shadow: var(--shadow); font-size: 12px; line-height: 1.45; text-align: center; opacity: 0; transform: translate(-50%, 12px); pointer-events: none; transition: opacity .22s ease, transform .22s ease; }
+    .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 700px) {
+      .app-shell { width: min(100% - 30px, 560px); padding-top: 13px; padding-bottom: calc(105px + env(safe-area-inset-bottom)); }
+      .topbar { padding: 5px 1px 17px; }
+      .brand-mark { width: 39px; height: 39px; border-radius: 14px; }
+      .brand-caption { font-size: 10px; }
+      .date-chip { display: none; }
+      .welcome-card { grid-template-columns: 1fr; gap: 0; padding: 29px 24px 20px; min-height: 0; border-radius: 26px; }
+      .eyebrow { margin-bottom: 15px; font-size: 9px; }
+      h1 { font-size: clamp(37px, 11vw, 53px); }
+      .welcome-text { max-width: 420px; margin: 13px 0 18px; font-size: 14px; }
+      .hero-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
+      .hero-actions .button { width: 100%; }
+      .no-pressure { margin-top: 11px; }
+      .hero-art { min-height: 180px; margin: 6px 0 -5px; }
+      .hero-orbit { width: 174px; height: 174px; }
+      .hero-note-card { min-height: 146px; width: 212px; padding: 17px 18px 15px; }
+      .hero-note-heart { font-size: 29px; }
+      .hero-note-copy { margin-top: 3px; font-size: 14px; }
+      .floating-heart.one { top: 10px; right: 30px; }
+      .floating-heart.two { bottom: 9px; left: 32px; }
+      .floating-heart.three { top: 34px; left: 43px; }
+      .section-heading { align-items: center; margin: 29px 2px 13px; }
+      .section-heading h2 { font-size: 17px; }
+      .section-heading p { max-width: 245px; font-size: 11px; }
+      .text-button { flex: 0 0 auto; font-size: 11px; }
+      .widget-grid { grid-template-columns: 1fr; gap: 11px; }
+      .widget, .widget[data-size="wide"] { grid-column: 1; padding: 19px; border-radius: 21px; }
+      .widget-grid.editing .widget-controls { justify-content: flex-start; }
+      .page-footnote { margin-top: 22px; font-size: 10px; }
+      .mobile-nav { position: fixed; z-index: 20; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); min-height: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 7px; border: 1px solid var(--line); border-radius: 20px; background: color-mix(in srgb, var(--surface-solid) 92%, transparent); box-shadow: 0 10px 35px rgba(54, 43, 44, .13); backdrop-filter: blur(18px); }
+      .mobile-nav button { display: grid; align-content: center; justify-items: center; gap: 3px; border: 0; border-radius: 13px; background: transparent; color: var(--muted); cursor: pointer; font-size: 9px; font-weight: 650; }
+      .mobile-nav button:hover, .mobile-nav button:focus-visible { background: var(--accent-soft); color: var(--accent-strong); }
+      .mobile-nav .nav-icon { font-size: 17px; line-height: 1; }
+      dialog.sheet { width: 100%; max-width: 620px; max-height: min(91dvh, 900px); margin: auto 0 0; border-radius: 25px 25px 0 0; border-bottom: 0; }
+      .dialog-body { padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); }
+      .toast { bottom: calc(88px + env(safe-area-inset-bottom)); }
+    }
+    @media (max-width: 380px) {
+      .app-shell { width: calc(100% - 22px); }
+      .welcome-card { padding-left: 19px; padding-right: 19px; }
+      .hero-actions { gap: 7px; }
+      .button { padding-inline: 13px; }
+      .section-heading p { max-width: 190px; }
+      .theme-grid { gap: 5px; }
+      .theme-choice { font-size: 9px; }
+      .dialog-body { padding-left: 16px; padding-right: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body data-theme="soft">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="Pocket of Us home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20.4 8.7c0 5-8.4 10.2-8.4 10.2S3.6 13.7 3.6 8.7A4.5 4.5 0 0 1 12 6.6a4.5 4.5 0 0 1 8.4 2.1Z" fill="currentColor" opacity=".2"/><path d="M20.4 8.7c0 5-8.4 10.2-8.4 10.2S3.6 13.7 3.6 8.7A4.5 4.5 0 0 1 12 6.6a4.5 4.5 0 0 1 8.4 2.1Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="brand-copy"><span class="brand-name">pocket of us</span><span class="brand-caption">your little corner of comfort</span></span>
+      </a>
+      <div class="topbar-right">
+        <span class="date-chip" id="dateChip"></span>
+        <button class="icon-button" id="openSettings" type="button" aria-label="Personalize your space" title="Personalize your space">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 0 1-2.4-2.4l.1-.1a1.7 1.7 0 0 0-1.2-2.9H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 0 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 0 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="home">
+      <section class="welcome-card" aria-labelledby="welcomeTitle">
+        <div class="welcome-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> a soft place to land</p>
+          <h1 id="welcomeTitle">Hey, <span id="nicknameDisplay">my love</span><span class="title-heart" aria-hidden="true">♥</span></h1>
+          <p class="welcome-text">Just a little corner of the world to remind you: you are so loved. On the lovely days, the messy days, and every version of you in between.</p>
+          <div class="hero-actions">
+            <button class="button button-primary" id="openMissYou" type="button"><span aria-hidden="true">♡</span> I miss you</button>
+            <button class="button button-soft" id="openComfort" type="button"><span aria-hidden="true">☁</span> I need a soft moment</button>
+          </div>
+          <p class="no-pressure">No pressure. Just love, whenever you need it.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-orbit"></div>
+          <span class="floating-heart one">♥</span><span class="floating-heart two">♥</span><span class="floating-heart three">✦</span>
+          <div class="hero-note-card">
+            <span class="hero-note-label">OPEN WHEN YOU NEED A REMINDER</span>
+            <span class="hero-note-heart">♥</span>
+            <p class="hero-note-copy">you are so loved.<br>especially on the days it’s hard to feel.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-heading">
+        <div><h2>Your little corner</h2><p>A few lovely things, arranged just for you.</p></div>
+        <button class="text-button" type="button" id="toggleEdit" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 4 6 6M4 20l4.3-.9L19 8.4a2.1 2.1 0 0 0-3-3L5.3 16.1 4 20Z"/><path d="M13 6 18 11"/></svg><span id="editButtonText">Arrange your space</span></button>
+      </div>
+      <div class="edit-banner" id="editBanner" hidden>
+        <span>Move things with the arrows or drag a card. Hide anything you don’t need right now.</span>
+        <div class="hidden-widgets" id="hiddenWidgets"></div>
+      </div>
+
+      <section class="widget-grid" id="widgetGrid" aria-label="Your customizable widgets">
+        <article class="widget" data-widget-id="note" data-size="wide" draggable="false">
+          <div class="widget-top"><div><p class="widget-kicker">a little note from me</p><h3>For your heart, today</h3></div><span class="widget-icon" aria-hidden="true">✉</span></div>
+          <p class="note-display" id="noteText">You don't need to be in a good mood to be adored.</p>
+          <div class="widget-bottom"><span class="widget-caption">a reminder, whenever you need one</span><button class="widget-action" type="button" id="nextNote">Another little note ↗</button></div>
+          <div class="widget-controls" aria-label="Widget controls"><button class="widget-control" data-action="up" type="button" aria-label="Move widget up">↑ up</button><button class="widget-control" data-action="down" type="button" aria-label="Move widget down">↓ down</button><button class="widget-control" data-action="size" type="button">Make compact</button><button class="widget-control" data-action="hide" type="button">Hide</button></div>
+        </article>
+        <article class="widget" data-widget-id="quote" data-size="normal" draggable="false">
+          <div class="widget-top"><div><p class="widget-kicker">for a tender day</p><h3>A gentle reminder</h3></div><span class="widget-icon" aria-hidden="true">☼</span></div>
+          <blockquote class="quote-display" id="quoteText">You don’t have to make today better before you deserve softness.</blockquote>
+          <div class="widget-bottom"><span class="quote-source">a little truth from someone who loves you</span><button class="widget-action" type="button" id="nextQuote">One more ↗</button></div>
+          <div class="widget-controls" aria-label="Widget controls"><button class="widget-control" data-action="up" type="button" aria-label="Move widget up">↑ up</button><button class="widget-control" data-action="down" type="button" aria-label="Move widget down">↓ down</button><button class="widget-control" data-action="size" type="button">Make wide</button><button class="widget-control" data-action="hide" type="button">Hide</button></div>
+        </article>
+        <article class="widget" data-widget-id="memory" data-size="normal" draggable="false">
+          <div class="widget-top"><div><p class="widget-kicker">little things, kept close</p><h3>Our memory jar</h3></div><span class="widget-icon" aria-hidden="true">✿</span></div>
+          <div class="memory-preview" id="memoryPreview"></div>
+          <div class="widget-bottom"><span class="widget-caption" id="memoryCount">A place for your favorite moments</span><button class="widget-action" type="button" id="openMemories">Open jar ↗</button></div>
+          <div class="widget-controls" aria-label="Widget controls"><button class="widget-control" data-action="up" type="button" aria-label="Move widget up">↑ up</button><button class="widget-control" data-action="down" type="button" aria-label="Move widget down">↓ down</button><button class="widget-control" data-action="size" type="button">Make wide</button><button class="widget-control" data-action="hide" type="button">Hide</button></div>
+        </article>
+        <article class="widget" data-widget-id="journal" data-size="normal" draggable="false">
+          <div class="widget-top"><div><p class="widget-kicker">just for you</p><h3>Your little journal</h3></div><span class="widget-icon" aria-hidden="true">☷</span></div>
+          <div class="journal-stat"><span class="journal-stat-num" id="journalCount">0</span><span class="journal-stat-copy">little thoughts saved<br>in your own space</span></div>
+          <div class="widget-bottom"><span class="widget-caption">private on this device</span><button class="widget-action" type="button" id="openJournal">Write a little ↗</button></div>
+          <div class="widget-controls" aria-label="Widget controls"><button class="widget-control" data-action="up" type="button" aria-label="Move widget up">↑ up</button><button class="widget-control" data-action="down" type="button" aria-label="Move widget down">↓ down</button><button class="widget-control" data-action="size" type="button">Make wide</button><button class="widget-control" data-action="hide" type="button">Hide</button></div>
+        </article>
+        <article class="widget" data-widget-id="joy" data-size="normal" draggable="false">
+          <div class="widget-top"><div><p class="widget-kicker">tiny joy break</p><h3>A very small mission</h3></div><span class="widget-icon" aria-hidden="true">☻</span></div>
+          <p class="joy-message" id="joyText">Tap for a tiny bit of joy. No big quest required.</p>
+          <div class="widget-bottom"><span class="widget-caption">the easiest quest you’ll do today</span><button class="widget-action" type="button" id="newJoy">Surprise me ↗</button></div>
+          <div class="widget-controls" aria-label="Widget controls"><button class="widget-control" data-action="up" type="button" aria-label="Move widget up">↑ up</button><button class="widget-control" data-action="down" type="button" aria-label="Move widget down">↓ down</button><button class="widget-control" data-action="size" type="button">Make wide</button><button class="widget-control" data-action="hide" type="button">Hide</button></div>
+        </article>
+      </section>
+      <p class="page-footnote"><span>♥</span> made with a whole lot of love <span>♥</span></p>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Quick actions">
+    <button type="button" id="navHome"><span class="nav-icon" aria-hidden="true">⌂</span>Home</button>
+    <button type="button" id="navJournal"><span class="nav-icon" aria-hidden="true">☷</span>Journal</button>
+    <button type="button" id="navComfort"><span class="nav-icon" aria-hidden="true">♡</span>Comfort</button>
+    <button type="button" id="navSettings"><span class="nav-icon" aria-hidden="true">✿</span>Make it yours</button>
+  </nav>
+
+  <dialog class="sheet" id="missDialog" aria-labelledby="missTitle">
+    <div class="dialog-body">
+      <div class="dialog-header"><div><h2 id="missTitle">Send me a little “miss you”</h2><p>A little message, whenever you feel like it. No pressure to say anything extra.</p></div><button class="dialog-close" type="button" data-close="missDialog" aria-label="Close">×</button></div>
+      <form id="missForm">
+        <div class="field"><label for="missMessage">Your message</label><textarea class="textarea" id="missMessage" maxlength="500" placeholder="I miss you a little extra today 💌">I miss you a little extra today 💌</textarea></div>
+        <div class="helper-card">This opens WhatsApp with your message ready. You’ll tap <strong>Send</strong> in WhatsApp to share it.</div>
+        <p class="inline-error" id="missError" role="status"></p>
+        <div class="dialog-actions"><button class="button button-plain" type="button" data-close="missDialog">Maybe later</button><button class="button button-primary" type="submit">Open WhatsApp <span aria-hidden="true">↗</span></button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="comfortDialog" aria-labelledby="comfortTitle">
+    <div class="dialog-body">
+      <div class="dialog-header"><div><h2 id="comfortTitle">What would feel kind right now?</h2><p>You don’t have to explain. Pick whatever sounds nicest—or just close this and rest.</p></div><button class="dialog-close" type="button" data-close="comfortDialog" aria-label="Close">×</button></div>
+      <div class="comfort-options">
+        <button type="button" class="comfort-choice" data-comfort="words"><span aria-hidden="true">💌</span><span><strong>Kind words</strong><small>A soft reminder from me</small></span></button>
+        <button type="button" class="comfort-choice" data-comfort="laugh"><span aria-hidden="true">☻</span><span><strong>A tiny distraction</strong><small>Something silly and small</small></span></button>
+        <button type="button" class="comfort-choice" data-comfort="memory"><span aria-hidden="true">✿</span><span><strong>Feel close</strong><small>A memory from our jar</small></span></button>
+        <button type="button" class="comfort-choice" data-comfort="breathe"><span aria-hidden="true">☁</span><span><strong>A quiet moment</strong><small>Nothing to solve right now</small></span></button>
+      </div>
+      <div class="comfort-result" id="comfortResult" aria-live="polite">
+        <p id="comfortResultText"></p>
+        <div class="breath-guide" id="breathGuide" hidden><span class="breath-orb" aria-hidden="true"></span><span>Take a slow breath in, then let it go gently. Stay here as long as you like.</span></div>
+        <div class="comfort-result-actions"><button type="button" id="anotherComfort">A little more ↗</button><button type="button" id="comfortAddMemory">Add a memory</button></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="settingsDialog" aria-labelledby="settingsTitle">
+    <div class="dialog-body">
+      <div class="dialog-header"><div><h2 id="settingsTitle">Make this space yours</h2><p>Pick the little details that make it feel like you.</p></div><button class="dialog-close" type="button" data-close="settingsDialog" aria-label="Close">×</button></div>
+      <form id="settingsForm">
+        <div class="field"><label for="nicknameInput">What should the greeting call you?</label><input class="input" id="nicknameInput" maxlength="32" placeholder="my love"></div>
+        <div class="field"><label for="whatsappInput">WhatsApp number for “I miss you”</label><input class="input" id="whatsappInput" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 919876543210"><span class="field-hint">Include the country code. Digits only is easiest (for example, India: 91 followed by the number). This stays in this browser.</span></div>
+        <div class="field"><label>Choose a theme</label><div class="theme-grid" role="group" aria-label="Choose a color theme">
+          <button class="theme-choice" type="button" data-theme-choice="soft" aria-pressed="false"><span class="theme-swatch swatch-soft"></span>Soft</button>
+          <button class="theme-choice" type="button" data-theme-choice="blossom" aria-pressed="false"><span class="theme-swatch swatch-blossom"></span>Petal</button>
+          <button class="theme-choice" type="button" data-theme-choice="lavender" aria-pressed="false"><span class="theme-swatch swatch-lavender"></span>Lavender</button>
+          <button class="theme-choice" type="button" data-theme-choice="sage" aria-pressed="false"><span class="theme-swatch swatch-sage"></span>Sage</button>
+          <button class="theme-choice" type="button" data-theme-choice="night" aria-pressed="false"><span class="theme-swatch swatch-night"></span>Night</button>
+        </div></div>
+        <div class="field"><label for="wallpaperInput">Backdrop</label><div class="upload-row"><label class="upload-label" for="wallpaperInput">Choose a photo</label><input class="upload-input" id="wallpaperInput" type="file" accept="image/*"><button class="button button-plain button-small" type="button" id="clearWallpaper">Use theme color</button></div><span class="field-hint">Your photo is resized and saved in this browser, not uploaded.</span><img class="photo-preview" id="wallpaperPreview" alt="Selected backdrop preview"></div>
+        <div class="field"><label for="notesInput">Love notes, one per line</label><textarea class="textarea" id="notesInput" maxlength="4000" placeholder="Write a few little reminders from you..."></textarea></div>
+        <div class="field"><label for="quotesInput">Comforting quotes, one per line</label><textarea class="textarea" id="quotesInput" maxlength="4000" placeholder="Add words that you want her to find on a hard day..."></textarea></div>
+        <div class="privacy-note"><strong>A private little note:</strong> journal entries and memories are stored in this browser only. They are not sent to you or uploaded. Clearing this site’s browser data can erase them.</div>
+        <div class="dialog-actions"><button class="button button-plain" type="button" data-close="settingsDialog">Close</button><button class="button button-primary" type="submit">Save my space</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="journalDialog" aria-labelledby="journalTitle">
+    <div class="dialog-body">
+      <div class="dialog-header"><div><h2 id="journalTitle">A page that’s just yours</h2><p>Write a little or a lot. This journal stays in this browser on this device.</p></div><button class="dialog-close" type="button" data-close="journalDialog" aria-label="Close">×</button></div>
+      <form id="journalForm">
+        <div class="field"><label>How are you feeling? (only if you want)</label><div class="mood-row" role="group" aria-label="Optional mood"><button type="button" class="mood-button" data-mood="💗" aria-pressed="true" aria-label="Loved">💗</button><button type="button" class="mood-button" data-mood="🌥️" aria-pressed="false" aria-label="A little low">🌥️</button><button type="button" class="mood-button" data-mood="🌱" aria-pressed="false" aria-label="Growing">🌱</button><button type="button" class="mood-button" data-mood="✨" aria-pressed="false" aria-label="Bright">✨</button><button type="button" class="mood-button" data-mood="🫧" aria-pressed="false" aria-label="Need a pause">🫧</button></div></div>
+        <div class="field"><label for="journalText">What’s on your mind?</label><textarea class="textarea" id="journalText" maxlength="5000" placeholder="No perfect words needed…"></textarea></div>
+        <div class="dialog-actions"><button class="button button-primary" type="submit">Save this page</button></div>
+      </form>
+      <div class="entry-list" id="journalEntries"></div>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="memoryDialog" aria-labelledby="memoryTitle">
+    <div class="dialog-body">
+      <div class="dialog-header"><div><h2 id="memoryTitle">Our little memory jar</h2><p>Save a moment, a photo, an inside joke, or anything you want to keep close.</p></div><button class="dialog-close" type="button" data-close="memoryDialog" aria-label="Close">×</button></div>
+      <form id="memoryForm">
+        <div class="field"><label for="memoryName">Give this moment a name</label><input class="input" id="memoryName" maxlength="60" placeholder="That little coffee date"></div>
+        <div class="field"><label for="memoryBody">What do you want to remember?</label><textarea class="textarea" id="memoryBody" maxlength="800" placeholder="A few words just for you two…"></textarea></div>
+        <div class="field"><label for="memoryPhotoInput">Add a photo (optional)</label><input class="input" id="memoryPhotoInput" type="file" accept="image/*"><span class="field-hint">The photo is kept on this device and resized before saving.</span><img class="photo-preview" id="memoryPhotoPreview" alt="Selected memory photo preview"></div>
+        <div class="dialog-actions"><button class="button button-primary" type="submit">Save to our jar</button></div>
+      </form>
+      <div class="memory-list" id="memoryEntries"></div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const STORAGE = {
+        settings: 'pocket-of-us-settings-v1',
+        journal: 'pocket-of-us-journal-v1',
+        memories: 'pocket-of-us-memories-v1',
+        order: 'pocket-of-us-widget-order-v1',
+        hidden: 'pocket-of-us-hidden-widgets-v1',
+        wide: 'pocket-of-us-wide-widgets-v1'
+      };
+      const DEFAULT_NOTES = [
+        'You don’t need to be in a good mood to be adored.',
+        'I hope you know how proud I am of the person you are, even on the days you feel a little wobbly.',
+        'If we were together right now, I’d be finding a reason to hold your hand.',
+        'Your hard days don’t make you any harder to love. Not even a little.',
+        'Consider this your official permission to rest and be a little spoiled.',
+        'There is nowhere else I would rather be than on your team.',
+        'I love the way you make ordinary little moments feel special.'
+      ];
+      const DEFAULT_QUOTES = [
+        'You don’t have to make today better before you deserve softness.',
+        'Your hard days don’t make you hard to love.',
+        'Even when you don’t feel like yourself, you’re still my favorite person.',
+        'You are allowed to rest without earning it.',
+        'One small breath is enough for this moment. The rest can wait.',
+        'You don’t have to be cheerful for me. You can just be you, and I’ll still choose you.'
+      ];
+      const TINY_JOYS = [
+        'Official cuteness report: still completely off the charts. 📋',
+        'Your tiny quest: unclench your jaw, drop your shoulders, accept one imaginary forehead kiss.',
+        'Please accept this extremely official award for being you. 🏆',
+        'Imagine a blanket burrito and absolutely no urgent tasks for five whole minutes.',
+        'Someone (me) thinks you’re wonderful. The evidence is extensive.',
+        'Emergency little joy: wiggle your toes. You did it. Iconic.',
+        'This is your reminder that you deserve a snack and a very soft place to sit.'
+      ];
+      const SILLY_LINES = [
+        'Important update: you are still extremely huggable. This remains true in every mood.',
+        'If today were a tiny potato, I would still pick you first for my team.',
+        'Sending one imaginary blanket, two forehead kisses, and a very serious little boop.',
+        'You are my favorite notification, even when you have absolutely nothing to say.',
+        'A tiny reminder from your personal fan club: you’re wonderful. Membership: me, forever.'
+      ];
+      // Add your number here (international format, digits only) before sharing the site.
+      // Example for India: '919876543210'
+      const CREATOR_WHATSAPP_NUMBER = '';
+      const defaults = { nickname: 'my love', phone: CREATOR_WHATSAPP_NUMBER, theme: 'soft', wallpaper: '', notes: DEFAULT_NOTES, quotes: DEFAULT_QUOTES };
+      const readJSON = (key, fallback) => {
+        try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : fallback; }
+        catch (_) { return fallback; }
+      };
+      const saveJSON = (key, value, silent = false) => {
+        try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+        catch (_) { if (!silent) toast('This browser is running low on saved space. Try removing a photo or exporting important text.'); return false; }
+      };
+      let settings = { ...defaults, ...readJSON(STORAGE.settings, {}) };
+      if (!Array.isArray(settings.notes)) settings.notes = DEFAULT_NOTES;
+      if (!Array.isArray(settings.quotes)) settings.quotes = DEFAULT_QUOTES;
+      let journalEntries = readJSON(STORAGE.journal, []);
+      if (!Array.isArray(journalEntries)) journalEntries = [];
+      let memories = readJSON(STORAGE.memories, []);
+      if (!Array.isArray(memories)) memories = [];
+      let widgetOrder = readJSON(STORAGE.order, ['note', 'quote', 'memory', 'journal', 'joy']);
+      let hiddenWidgets = readJSON(STORAGE.hidden, []);
+      let wideWidgets = readJSON(STORAGE.wide, ['note']);
+      const validIds = ['note', 'quote', 'memory', 'journal', 'joy'];
+      widgetOrder = [...new Set([...widgetOrder.filter(id => validIds.includes(id)), ...validIds.filter(id => !widgetOrder.includes(id))])];
+      hiddenWidgets = hiddenWidgets.filter(id => validIds.includes(id));
+      wideWidgets = wideWidgets.filter(id => validIds.includes(id));
+      let noteIndex = 0;
+      let quoteIndex = 0;
+      let selectedMood = '💗';
+      let draftMemoryPhoto = '';
+      let currentComfort = 'words';
+      let toastTimer;
+
+      const $ = (selector, scope = document) => scope.querySelector(selector);
+      const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
+      const byId = id => document.getElementById(id);
+
+      function newId() {
+        return window.crypto && typeof window.crypto.randomUUID === 'function'
+          ? window.crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      }
+      function toast(message) {
+        const node = byId('toast');
+        node.textContent = message;
+        node.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => node.classList.remove('visible'), 3100);
+      }
+      function openDialog(id) {
+        const dialog = byId(id);
+        if (dialog && !dialog.open) dialog.showModal();
+      }
+      function closeDialog(id) {
+        const dialog = byId(id);
+        if (dialog && dialog.open) dialog.close();
+      }
+      function getNotes() { return settings.notes.length ? settings.notes : DEFAULT_NOTES; }
+      function getQuotes() { return settings.quotes.length ? settings.quotes : DEFAULT_QUOTES; }
+      function applySettings() {
+        const knownThemes = ['soft', 'blossom', 'lavender', 'sage', 'night'];
+        if (!knownThemes.includes(settings.theme)) settings.theme = 'soft';
+        document.body.dataset.theme = settings.theme;
+        document.body.style.setProperty('--photo', settings.wallpaper ? `url("${settings.wallpaper}")` : 'none');
+        byId('nicknameDisplay').textContent = (settings.nickname || '').trim() || 'my love';
+        $$('.theme-choice').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeChoice === settings.theme)));
+        const preview = byId('wallpaperPreview');
+        if (settings.wallpaper) { preview.src = settings.wallpaper; preview.classList.add('visible'); }
+        else { preview.removeAttribute('src'); preview.classList.remove('visible'); }
+      }
+      function fillSettings() {
+        byId('nicknameInput').value = settings.nickname || '';
+        byId('whatsappInput').value = settings.phone || '';
+        byId('notesInput').value = (settings.notes || DEFAULT_NOTES).join('\n');
+        byId('quotesInput').value = (settings.quotes || DEFAULT_QUOTES).join('\n');
+        applySettings();
+      }
+      function getDayIndex(length) {
+        const start = new Date(new Date().getFullYear(), 0, 0);
+        const day = Math.floor((new Date() - start) / 86400000);
+        return length ? day % length : 0;
+      }
+      function renderNote() {
+        const list = getNotes();
+        noteIndex = ((noteIndex % list.length) + list.length) % list.length;
+        byId('noteText').textContent = list[noteIndex];
+      }
+      function renderQuote() {
+        const list = getQuotes();
+        quoteIndex = ((quoteIndex % list.length) + list.length) % list.length;
+        byId('quoteText').textContent = list[quoteIndex];
+      }
+      function renderCounts() {
+        byId('journalCount').textContent = String(journalEntries.length);
+        byId('memoryCount').textContent = memories.length ? `${memories.length} ${memories.length === 1 ? 'little moment' : 'little moments'} saved` : 'A place for your favorite moments';
+      }
+      function renderMemoryWidget() {
+        const root = byId('memoryPreview');
+        root.replaceChildren();
+        if (!memories.length) {
+          const empty = document.createElement('div');
+          empty.className = 'memory-empty';
+          const flower = document.createElement('span'); flower.textContent = '✿'; flower.setAttribute('aria-hidden', 'true');
+          const copy = document.createElement('span'); copy.textContent = 'Save a favorite photo, a little inside joke, or a moment you want to keep close.';
+          empty.append(flower, copy); root.append(empty); return;
+        }
+        const memory = memories[0];
+        if (memory.photo) { const img = document.createElement('img'); img.src = memory.photo; img.alt = memory.title ? `Photo for ${memory.title}` : 'A saved memory'; root.append(img); }
+        const text = document.createElement('div'); text.className = 'memory-text';
+        const title = document.createElement('strong'); title.textContent = memory.title || 'A little moment';
+        const body = document.createElement('p'); body.textContent = memory.body || 'A moment worth keeping close.';
+        text.append(title, body); root.append(text);
+      }
+      function renderMemoryList() {
+        const root = byId('memoryEntries'); root.replaceChildren();
+        if (!memories.length) {
+          const empty = document.createElement('div'); empty.className = 'empty-state'; empty.textContent = 'Your jar is waiting for its first little moment. Add a photo, an inside joke, or a few words you want to keep close.'; root.append(empty); return;
+        }
+        memories.forEach(memory => {
+          const card = document.createElement('article'); card.className = 'memory-card';
+          if (memory.photo) { const img = document.createElement('img'); img.src = memory.photo; img.alt = memory.title ? `Photo for ${memory.title}` : 'Saved memory'; card.append(img); }
+          const top = document.createElement('div'); top.className = 'entry-card-top';
+          const date = document.createElement('span'); date.textContent = new Date(memory.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+          const remove = document.createElement('button'); remove.className = 'delete-button'; remove.type = 'button'; remove.textContent = 'Remove'; remove.setAttribute('aria-label', `Remove memory ${memory.title || ''}`);
+          remove.addEventListener('click', () => { memories = memories.filter(item => item.id !== memory.id); saveJSON(STORAGE.memories, memories); renderMemoryList(); renderMemoryWidget(); renderCounts(); toast('That moment has been removed from your jar.'); });
+          top.append(date, remove);
+          const title = document.createElement('h4'); title.textContent = memory.title || 'A little moment';
+          const body = document.createElement('p'); body.textContent = memory.body || 'A moment worth keeping close.';
+          card.append(top, title, body); root.append(card);
+        });
+      }
+
+      function renderJournal() {
+        const root = byId('journalEntries'); root.replaceChildren();
+        if (!journalEntries.length) {
+          const empty = document.createElement('div'); empty.className = 'empty-state'; empty.textContent = 'Your pages will show up here. This is a quiet space for whatever is on your mind.'; root.append(empty); return;
+        }
+        journalEntries.slice().sort((a, b) => b.date - a.date).forEach(entry => {
+          const card = document.createElement('article'); card.className = 'entry-card';
+          const top = document.createElement('div'); top.className = 'entry-card-top';
+          const date = document.createElement('span');
+          date.textContent = `${entry.mood || '💗'}  ${new Date(entry.date).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
+          const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'delete-button'; remove.textContent = 'Delete'; remove.setAttribute('aria-label', 'Delete journal entry');
+          remove.addEventListener('click', () => { journalEntries = journalEntries.filter(item => item.id !== entry.id); saveJSON(STORAGE.journal, journalEntries); renderJournal(); renderCounts(); toast('Your page has been deleted.'); });
+          top.append(date, remove);
+          const text = document.createElement('p'); text.textContent = entry.text;
+          card.append(top, text); root.append(card);
+        });
+      }
+      function updateDate() {
+        byId('dateChip').textContent = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      }
+      function refreshAll() {
+        applySettings();
+        noteIndex = getDayIndex(getNotes().length);
+        quoteIndex = getDayIndex(getQuotes().length);
+        renderNote(); renderQuote(); renderMemoryWidget(); renderCounts(); renderLayout(); updateDate();
+      }
+
+      function renderLayout() {
+        const grid = byId('widgetGrid');
+        widgetOrder.forEach(id => {
+          const widget = $(`[data-widget-id="${id}"]`, grid);
+          if (!widget) return;
+          grid.append(widget);
+          widget.hidden = hiddenWidgets.includes(id);
+          widget.dataset.size = wideWidgets.includes(id) ? 'wide' : 'normal';
+          const sizeButton = $('[data-action="size"]', widget);
+          if (sizeButton) sizeButton.textContent = wideWidgets.includes(id) ? 'Make compact' : 'Make wide';
+        });
+        renderHiddenWidgets();
+      }
+      function renderHiddenWidgets() {
+        const list = byId('hiddenWidgets'); list.replaceChildren();
+        hiddenWidgets.forEach(id => {
+          const widget = $(`[data-widget-id="${id}"]`);
+          if (!widget) return;
+          const button = document.createElement('button'); button.type = 'button'; button.className = 'restore-widget';
+          const title = $('h3', widget)?.textContent || id; button.textContent = `+ Show ${title}`;
+          button.addEventListener('click', () => { hiddenWidgets = hiddenWidgets.filter(item => item !== id); saveJSON(STORAGE.hidden, hiddenWidgets); renderLayout(); });
+          list.append(button);
+        });
+      }
+      let layoutEditing = false;
+      function setLayoutEditing(value) {
+        layoutEditing = value;
+        const grid = byId('widgetGrid'); grid.classList.toggle('editing', value);
+        $$('.widget', grid).forEach(widget => widget.draggable = value);
+        byId('editBanner').hidden = !value;
+        byId('toggleEdit').setAttribute('aria-pressed', String(value));
+        byId('editButtonText').textContent = value ? 'Done arranging' : 'Arrange your space';
+      }
+      function moveVisibleWidget(id, direction) {
+        const visible = widgetOrder.filter(item => !hiddenWidgets.includes(item));
+        const visibleIndex = visible.indexOf(id);
+        const other = visible[visibleIndex + direction];
+        if (!other) return;
+        const a = widgetOrder.indexOf(id), b = widgetOrder.indexOf(other);
+        [widgetOrder[a], widgetOrder[b]] = [widgetOrder[b], widgetOrder[a]];
+        saveJSON(STORAGE.order, widgetOrder); renderLayout();
+      }
+      function reorderWidgets(draggedId, targetId) {
+        if (!draggedId || !targetId || draggedId === targetId) return;
+        const from = widgetOrder.indexOf(draggedId), to = widgetOrder.indexOf(targetId);
+        if (from < 0 || to < 0) return;
+        widgetOrder.splice(from, 1); widgetOrder.splice(to, 0, draggedId);
+        saveJSON(STORAGE.order, widgetOrder); renderLayout();
+      }
+
+      // Resize uploaded photos before storing them locally, to keep the on-device app lightweight.
+      function compressImage(file, maxSide = 1300, quality = .78) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error('Could not read that image.'));
+          reader.onload = () => {
+            const img = new Image();
+            img.onerror = () => reject(new Error('That file does not look like an image.'));
+            img.onload = () => {
+              const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+              const canvas = document.createElement('canvas');
+              canvas.width = Math.max(1, Math.round(img.width * scale));
+              canvas.height = Math.max(1, Math.round(img.height * scale));
+              const context = canvas.getContext('2d');
+              context.fillStyle = '#f8f4ee'; context.fillRect(0, 0, canvas.width, canvas.height);
+              context.drawImage(img, 0, 0, canvas.width, canvas.height);
+              resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Main actions
+      byId('openMissYou').addEventListener('click', () => { byId('missError').classList.remove('visible'); byId('missError').textContent = ''; openDialog('missDialog'); });
+      byId('openComfort').addEventListener('click', () => { byId('comfortResult').classList.remove('visible'); byId('breathGuide').hidden = true; openDialog('comfortDialog'); });
+      byId('openSettings').addEventListener('click', () => { fillSettings(); openDialog('settingsDialog'); });
+      byId('openJournal').addEventListener('click', () => { renderJournal(); openDialog('journalDialog'); });
+      byId('openMemories').addEventListener('click', () => { renderMemoryList(); openDialog('memoryDialog'); });
+      byId('toggleEdit').addEventListener('click', () => setLayoutEditing(!layoutEditing));
+      byId('nextNote').addEventListener('click', () => { noteIndex = (noteIndex + 1) % getNotes().length; renderNote(); });
+      byId('nextQuote').addEventListener('click', () => { quoteIndex = (quoteIndex + 1) % getQuotes().length; renderQuote(); });
+      byId('newJoy').addEventListener('click', () => { const phrase = TINY_JOYS[Math.floor(Math.random() * TINY_JOYS.length)]; byId('joyText').textContent = phrase; });
+      byId('navHome').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      byId('navJournal').addEventListener('click', () => { renderJournal(); openDialog('journalDialog'); });
+      byId('navComfort').addEventListener('click', () => { byId('comfortResult').classList.remove('visible'); byId('breathGuide').hidden = true; openDialog('comfortDialog'); });
+      byId('navSettings').addEventListener('click', () => { fillSettings(); openDialog('settingsDialog'); });
+      $$('[data-close]').forEach(button => button.addEventListener('click', () => closeDialog(button.dataset.close)));
+      $$('dialog.sheet').forEach(dialog => dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); }));
+
+      byId('missForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const digits = String(settings.phone || '').replace(/\D/g, '');
+        const error = byId('missError');
+        if (!digits || digits.length < 8) {
+          error.textContent = 'Add your WhatsApp number with country code in “Make this space yours” first.';
+          error.classList.add('visible');
+          return;
+        }
+        const message = byId('missMessage').value.trim() || 'I miss you 💌';
+        const url = `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+        closeDialog('missDialog');
+        toast('Your message is ready in WhatsApp. Tap Send there when you’re ready.');
+      });
+
+      byId('settingsForm').addEventListener('submit', event => {
+        event.preventDefault();
+        settings.nickname = byId('nicknameInput').value.trim() || 'my love';
+        settings.phone = byId('whatsappInput').value.trim();
+        const notes = byId('notesInput').value.split('\n').map(line => line.trim()).filter(Boolean).slice(0, 40);
+        const quotes = byId('quotesInput').value.split('\n').map(line => line.trim()).filter(Boolean).slice(0, 40);
+        settings.notes = notes.length ? notes : DEFAULT_NOTES;
+        settings.quotes = quotes.length ? quotes : DEFAULT_QUOTES;
+        const ok = saveJSON(STORAGE.settings, settings);
+        refreshAll(); closeDialog('settingsDialog');
+        if (ok) toast('Your little corner is saved. 💛');
+      });
+      $$('.theme-choice').forEach(button => button.addEventListener('click', () => {
+        settings.theme = button.dataset.themeChoice; applySettings(); saveJSON(STORAGE.settings, settings, true);
+      }));
+      byId('clearWallpaper').addEventListener('click', () => { settings.wallpaper = ''; applySettings(); saveJSON(STORAGE.settings, settings); toast('Back to your theme colors.'); });
+      byId('wallpaperInput').addEventListener('change', async event => {
+        const file = event.target.files && event.target.files[0]; if (!file) return;
+        if (!file.type.startsWith('image/')) { toast('Please choose an image file.'); return; }
+        try { settings.wallpaper = await compressImage(file, 1500, .76); applySettings(); saveJSON(STORAGE.settings, settings); toast('Your backdrop is ready.'); }
+        catch (error) { toast(error.message || 'Could not use that photo.'); }
+        event.target.value = '';
+      });
+
+      // Journal
+      $$('.mood-button').forEach(button => button.addEventListener('click', () => {
+        selectedMood = button.dataset.mood;
+        $$('.mood-button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      }));
+      byId('journalForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const text = byId('journalText').value.trim();
+        if (!text) { toast('Write even one little line before saving.'); return; }
+        journalEntries.unshift({ id: newId(), date: Date.now(), mood: selectedMood, text });
+        if (saveJSON(STORAGE.journal, journalEntries)) {
+          byId('journalText').value = ''; renderJournal(); renderCounts(); toast('Your page is saved, just for you.');
+        }
+      });
+
+      // Memories
+      byId('memoryPhotoInput').addEventListener('change', async event => {
+        const file = event.target.files && event.target.files[0]; if (!file) return;
+        if (!file.type.startsWith('image/')) { toast('Please choose an image file.'); return; }
+        try { draftMemoryPhoto = await compressImage(file, 1000, .7); const preview = byId('memoryPhotoPreview'); preview.src = draftMemoryPhoto; preview.classList.add('visible'); }
+        catch (error) { toast(error.message || 'Could not use that photo.'); }
+      });
+      byId('memoryForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const title = byId('memoryName').value.trim();
+        const body = byId('memoryBody').value.trim();
+        if (!title && !body && !draftMemoryPhoto) { toast('Add a few words or a photo first.'); return; }
+        memories.unshift({ id: newId(), date: Date.now(), title, body, photo: draftMemoryPhoto });
+        memories = memories.slice(0, 24);
+        if (saveJSON(STORAGE.memories, memories)) {
+          byId('memoryName').value = ''; byId('memoryBody').value = ''; byId('memoryPhotoInput').value = ''; draftMemoryPhoto = '';
+          byId('memoryPhotoPreview').removeAttribute('src'); byId('memoryPhotoPreview').classList.remove('visible');
+          renderMemoryList(); renderMemoryWidget(); renderCounts(); toast('A little moment has been tucked away.');
+        }
+      });
+
+      // Soft-moment picker
+      function showComfort(mode) {
+        currentComfort = mode;
+        const result = byId('comfortResult'); const text = byId('comfortResultText'); const breath = byId('breathGuide');
+        breath.hidden = mode !== 'breathe';
+        let line = '';
+        if (mode === 'words') {
+          const quotes = getQuotes(); line = quotes[Math.floor(Math.random() * quotes.length)];
+        } else if (mode === 'laugh') {
+          line = SILLY_LINES[Math.floor(Math.random() * SILLY_LINES.length)];
+        } else if (mode === 'memory') {
+          const memory = memories.length ? memories[Math.floor(Math.random() * memories.length)] : null;
+          line = memory ? (memory.body || memory.title || 'A little moment worth keeping close.') : 'Your memory jar is ready whenever you want to add a little moment. For now, remember: you’re loved in all the ordinary, in-between moments too.';
+        } else {
+          line = 'You don’t have to solve everything in this moment. Let your shoulders soften, take one slow breath, and stay right here.';
+        }
+        text.textContent = line;
+        result.classList.add('visible');
+      }
+      $$('[data-comfort]').forEach(button => button.addEventListener('click', () => showComfort(button.dataset.comfort)));
+      byId('anotherComfort').addEventListener('click', () => showComfort(currentComfort));
+      byId('comfortAddMemory').addEventListener('click', () => { closeDialog('comfortDialog'); renderMemoryList(); openDialog('memoryDialog'); });
+
+      // Move, resize, and hide widgets. Arrow controls work on touch screens; drag is an extra option.
+      byId('widgetGrid').addEventListener('click', event => {
+        const button = event.target.closest('[data-action]'); if (!button) return;
+        const widget = button.closest('.widget'); if (!widget) return;
+        const id = widget.dataset.widgetId;
+        if (button.dataset.action === 'up') moveVisibleWidget(id, -1);
+        if (button.dataset.action === 'down') moveVisibleWidget(id, 1);
+        if (button.dataset.action === 'hide') { hiddenWidgets = [...new Set([...hiddenWidgets, id])]; saveJSON(STORAGE.hidden, hiddenWidgets); renderLayout(); }
+        if (button.dataset.action === 'size') {
+          wideWidgets = wideWidgets.includes(id) ? wideWidgets.filter(item => item !== id) : [...wideWidgets, id];
+          saveJSON(STORAGE.wide, wideWidgets); renderLayout();
+        }
+      });
+      let draggedId = '';
+      byId('widgetGrid').addEventListener('dragstart', event => {
+        const widget = event.target.closest('.widget'); if (!widget || !layoutEditing) return;
+        draggedId = widget.dataset.widgetId; widget.classList.add('dragging');
+        if (event.dataTransfer) { event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', draggedId); }
+      });
+      byId('widgetGrid').addEventListener('dragend', event => { const widget = event.target.closest('.widget'); if (widget) widget.classList.remove('dragging'); $$('.widget').forEach(item => item.classList.remove('drag-over')); draggedId = ''; });
+      byId('widgetGrid').addEventListener('dragover', event => { if (!layoutEditing) return; event.preventDefault(); const target = event.target.closest('.widget'); if (target && target.dataset.widgetId !== draggedId) target.classList.add('drag-over'); });
+      byId('widgetGrid').addEventListener('dragleave', event => { const target = event.target.closest('.widget'); if (target && !target.contains(event.relatedTarget)) target.classList.remove('drag-over'); });
+      byId('widgetGrid').addEventListener('drop', event => { if (!layoutEditing) return; event.preventDefault(); const target = event.target.closest('.widget'); if (target) reorderWidgets(draggedId || (event.dataTransfer && event.dataTransfer.getData('text/plain')), target.dataset.widgetId); });
+
+      // Start up, and register the tiny offline app shell when served over HTTPS/localhost.
+      refreshAll();
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+      }
+    })();
+  </script>
+</body>
+</html>
