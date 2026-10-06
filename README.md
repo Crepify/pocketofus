@@ -21,8 +21,14 @@ python3 -m http.server 4173 --bind 0.0.0.0
 
 Then open `http://localhost:4173`. For installation/offline caching on a phone, serve the site over HTTPS and use the browser's **Add to Home Screen** option.
 
+## Passphrase and love note
+
+The page now asks for the secret phrase on every load and whenever **Lock your space** is used. Each successful unlock opens a fresh love note (it avoids repeating the immediately previous one). The phrase is represented by a salted PBKDF2 verifier rather than plain text in the HTML.
+
+**This is only a casual front-end gate, not real site authentication.** The repository and static site are public, and a visitor can inspect or alter client-side code to bypass the screen. Do not rely on it to protect highly private information. Real access control requires a protected host or server-side authentication; never put a secret in a public page and expect it to stay secret.
+
 ## Privacy and storage
 
-Themes, layout, uploaded backdrop, memories, and journal entries are saved in that browser's local storage. They are not uploaded or synced. Clearing the browser's site data can erase them; the journal and memories are not sent to the site creator. Photos are resized in the browser before being stored locally.
+Themes, layout, uploaded backdrop, memories, and journal entries are saved in that browser's local storage. They persist across visits on the same browser, but are not uploaded, encrypted, or synced to other devices. Anyone with access to the browser's site data may be able to read them, and clearing the browser's site data can erase them. Photos are resized in the browser before being stored locally.
 
 The WhatsApp number is present in the website source if you set it there, so treat the folder/source as shareable with that in mind.
